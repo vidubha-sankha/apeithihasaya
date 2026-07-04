@@ -23,7 +23,36 @@ class GalleryImageResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Section::make('Image Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('title')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\FileUpload::make('image_path')
+                            ->image()
+                            ->directory('gallery')
+                            ->required(),
+                        Forms\Components\Textarea::make('description')
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('Historical Context')
+                    ->schema([
+                        Forms\Components\Select::make('kingdom_id')
+                            ->relationship('kingdom', 'name')
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Select::make('dynasty_id')
+                            ->relationship('dynasty', 'name')
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Select::make('king_id')
+                            ->relationship('king', 'name')
+                            ->searchable()
+                            ->preload(),
+                    ])->columns(3),
             ]);
     }
 
@@ -31,10 +60,26 @@ class GalleryImageResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\ImageColumn::make('image_path')
+                    ->label('Thumbnail'),
+                Tables\Columns\TextColumn::make('title')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('kingdom.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('dynasty.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('king.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('kingdom_id')
+                    ->relationship('kingdom', 'name')
+                    ->label('Kingdom'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
