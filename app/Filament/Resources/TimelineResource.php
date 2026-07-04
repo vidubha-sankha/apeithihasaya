@@ -23,7 +23,36 @@ class TimelineResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Section::make('Event Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('event_title')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('event_year')
+                            ->required()
+                            ->maxLength(50)
+                            ->placeholder('e.g. 161 BC or 1948 AD'),
+                        Forms\Components\Textarea::make('description')
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('Historical Connections')
+                    ->schema([
+                        Forms\Components\Select::make('kingdom_id')
+                            ->relationship('kingdom', 'name')
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Select::make('dynasty_id')
+                            ->relationship('dynasty', 'name')
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Select::make('king_id')
+                            ->relationship('king', 'name')
+                            ->searchable()
+                            ->preload(),
+                    ])->columns(3),
             ]);
     }
 
@@ -31,10 +60,25 @@ class TimelineResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('event_year')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('event_title')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('kingdom.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('king.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('kingdom_id')
+                    ->relationship('kingdom', 'name')
+                    ->label('Kingdom'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

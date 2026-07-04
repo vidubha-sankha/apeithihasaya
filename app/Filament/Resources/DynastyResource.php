@@ -23,7 +23,42 @@ class DynastyResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Section::make('Dynasty Information')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn ($set, $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                        Forms\Components\TextInput::make('slug')
+                            ->required()
+                            ->unique(ignorable: fn ($record) => $record)
+                            ->maxLength(255),
+                        Forms\Components\Select::make('kingdom_id')
+                            ->relationship('kingdom', 'name')
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\TextInput::make('origin')
+                            ->maxLength(255)
+                            ->placeholder('e.g. Solar Dynasty, Kalinga Dynasty'),
+                        Forms\Components\TextInput::make('founded_year')
+                            ->maxLength(50),
+                        Forms\Components\TextInput::make('ended_year')
+                            ->maxLength(50),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('Additional Information')
+                    ->schema([
+                        Forms\Components\RichEditor::make('description')
+                            ->columnSpanFull(),
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'draft' => 'Draft',
+                                'published' => 'Published',
+                            ])
+                            ->default('draft')
+                            ->required(),
+                    ]),
             ]);
     }
 
@@ -31,10 +66,34 @@ class DynastyResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('kingdom.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('origin')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('founded_year')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('ended_year')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'published' => 'success',
+                        'draft' => 'warning',
+                        default => 'gray',
+                    }),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('kingdom_id')
+                    ->relationship('kingdom', 'name')
+                    ->label('Kingdom'),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'published' => 'Published',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
