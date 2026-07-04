@@ -38,7 +38,6 @@ class KingResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -47,10 +46,19 @@ class KingResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageKings::route('/'),
+            'index' => Pages\ListKings::route('/'),
+            'create' => Pages\CreateKing::route('/create'),
+            'edit' => Pages\EditKing::route('/{record}/edit'),
         ];
     }
 }

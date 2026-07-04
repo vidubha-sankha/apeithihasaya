@@ -38,7 +38,6 @@ class ArticleResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -47,10 +46,19 @@ class ArticleResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageArticles::route('/'),
+            'index' => Pages\ListArticles::route('/'),
+            'create' => Pages\CreateArticle::route('/create'),
+            'edit' => Pages\EditArticle::route('/{record}/edit'),
         ];
     }
 }
